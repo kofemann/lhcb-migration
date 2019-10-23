@@ -77,7 +77,7 @@ public class Migration {
 
     public void run() throws ChimeraFsException {
 
-        var treeRoot = fs.path2inode(dest);
+        var treeRoot = fs.path2inode(src);
 
         Map<Long, String> map = getSpaceTokens();
         System.out.println();
@@ -102,8 +102,8 @@ public class Migration {
                             var inode = fs.id2inode(pnfsid, FileSystemProvider.StatCacheOption.NO_STAT);
                             var path = fs.inode2path(inode, treeRoot);
 
-                            File newFile = new File(src + "/" + tokens.getValue() + "/" + path);
-                            File oldFile = new File(dest + path);
+                            File newFile = new File(dest + "/" + tokens.getValue() + "/" + path);
+                            File oldFile = new File(src + path);
                             String newDirname = newFile.getParentFile().toString();
                             String oldDirname = oldFile.getParentFile().toString();
                             String name = oldFile.getName();
