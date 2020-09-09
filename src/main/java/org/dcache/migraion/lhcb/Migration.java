@@ -8,6 +8,7 @@ import com.hazelcast.core.Hazelcast;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.sql.DataSource;
@@ -75,7 +76,7 @@ public class Migration {
 
     }
 
-    public void run() throws ChimeraFsException {
+    public void run(List<String> tokenToUse) throws ChimeraFsException {
 
         var treeRoot = fs.path2inode(src);
 
@@ -87,6 +88,10 @@ public class Migration {
         for (Map.Entry<Long, String> token : map.entrySet()) {
 
             System.out.print(token.getValue());
+            if (!tokenToUse.contains(token.getValue())) {
+                System.out.println(" skip");
+                continue;
+            }
             progresInit();
             jdbc.query("SELECT pnfsid FROM srmspacefile where spacereservationid = ?",
                     ps -> {

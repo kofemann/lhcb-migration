@@ -1,5 +1,6 @@
 package org.dcache.migraion.lhcb;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.zaxxer.hikari.HikariConfig;
@@ -24,7 +25,7 @@ public class App {
                     config.getProperty("path.src"),
                     config.getProperty("path.dest"),
                     chimeraDb, spacemgrDb);
-            migration.run();
+            migration.run(Splitter.on(',').omitEmptyStrings().trimResults().splitToList(config.getProperty("tokens")));
         } catch (Throwable e) {
             e.printStackTrace();
         } finally {
@@ -51,6 +52,7 @@ public class App {
             "spacemgr.url",
             "spacemgr.user",
             "spacemgr.pass",
+            "tokens",
             "path.src",
             "path.dest"
         };
