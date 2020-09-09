@@ -84,13 +84,13 @@ public class Migration {
         System.out.println("=== processing space tokens ===");
         System.out.println();
 
-        for (Map.Entry<Long, String> tokens : map.entrySet()) {
+        for (Map.Entry<Long, String> token : map.entrySet()) {
 
-            System.out.print(tokens.getValue());
+            System.out.print(token.getValue());
             progresInit();
             jdbc.query("SELECT pnfsid FROM srmspacefile where spacereservationid = ?",
                     ps -> {
-                        ps.setLong(1, tokens.getKey());
+                        ps.setLong(1, token.getKey());
                     },
                     rs -> {
 
@@ -102,7 +102,7 @@ public class Migration {
                             var inode = fs.id2inode(pnfsid, FileSystemProvider.StatCacheOption.NO_STAT);
                             var path = fs.inode2path(inode, treeRoot);
 
-                            File newFile = new File(dest + "/" + tokens.getValue() + "/" + path);
+                            File newFile = new File(dest + "/" + token.getValue() + "/" + path);
                             File oldFile = new File(src + path);
                             String newDirname = newFile.getParentFile().toString();
                             String oldDirname = oldFile.getParentFile().toString();
