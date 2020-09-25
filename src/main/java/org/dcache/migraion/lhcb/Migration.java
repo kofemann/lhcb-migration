@@ -47,31 +47,31 @@ public class Migration {
 
         dirCacheOld = CacheBuilder.newBuilder()
                 .maximumSize(100000)
-                .build(new CacheLoader<String, FsInode>() {
-                    @Override
-                    public FsInode load(String k) throws Exception {
-                        return fs.path2inode(k);
-                    }
-                }
+                .build(new CacheLoader<>() {
+                           @Override
+                           public FsInode load(String k) throws Exception {
+                               return fs.path2inode(k);
+                           }
+                       }
                 );
 
         dirCacheNew = CacheBuilder.newBuilder()
                 .maximumSize(100000)
-                .build(new CacheLoader<String, FsInode>() {
-                    @Override
-                    public FsInode load(String k) throws Exception {
+                .build(new CacheLoader<>() {
+                           @Override
+                           public FsInode load(String k) throws Exception {
 
-                        try {
-                            return fs.path2inode(k);
-                        } catch (FileNotFoundHimeraFsException e) {
-                            File f = new File(k);
-                            if (f.getParent() != null) {
-                                dirCacheNew.get(f.getParent());
-                            }
-                            return fs.mkdir(k);
-                        }
-                    }
-                }
+                               try {
+                                   return fs.path2inode(k);
+                               } catch (FileNotFoundHimeraFsException e) {
+                                   File f = new File(k);
+                                   if (f.getParent() != null) {
+                                       dirCacheNew.get(f.getParent());
+                                   }
+                                   return fs.mkdir(k);
+                               }
+                           }
+                       }
                 );
 
     }
