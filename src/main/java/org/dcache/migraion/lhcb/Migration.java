@@ -92,7 +92,7 @@ public class Migration {
                 System.out.println(" skip");
                 continue;
             }
-            progresInit();
+            progressInit();
             jdbc.query("SELECT pnfsid FROM srmspacefile where spacereservationid = ?",
                     ps -> {
                         ps.setLong(1, token.getKey());
@@ -115,14 +115,14 @@ public class Migration {
                             FsInode destDir = dirCacheNew.get(newDirname);
                             FsInode srcDir = dirCacheOld.get(oldDirname);
 
-                            progresTick();
+                            progressTick();
                             fs.rename(inode, srcDir, name, destDir, name);
                         } catch (ChimeraFsException | ExecutionException ex) {
                             LOGGER.error("Failed to discover path: {}", ex.getMessage());
                         }
                     });
 
-            progresFinish();
+            progressFinish();
         }
 
         System.out.println();
@@ -143,17 +143,17 @@ public class Migration {
     private final char[] bar = {'-', '\\', '|', '/'};
     int i;
 
-    private void progresInit() {
+    private void progressInit() {
         i = 0;
         System.out.print("  ");
     }
 
-    private void progresFinish() {
+    private void progressFinish() {
         System.out.print("\b");
         System.out.println(i + " files.");
     }
 
-    private void progresTick() {
+    private void progressTick() {
         System.out.print("\b");
         System.out.print(bar[i++ % bar.length]);
     }
