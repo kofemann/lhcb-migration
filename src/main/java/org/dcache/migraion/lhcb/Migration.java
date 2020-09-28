@@ -6,6 +6,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.hazelcast.core.Hazelcast;
 import java.io.File;
+import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +93,10 @@ public class Migration {
                 System.out.println(" skip");
                 continue;
             }
-            progressInit();
+
+            Progress progress = new Progress(System.out);
+            progress.start();
+
             jdbc.query("SELECT pnfsid FROM srmspacefile where spacereservationid = ?",
                     ps -> {
                         ps.setLong(1, token.getKey());
@@ -115,14 +119,14 @@ public class Migration {
                             FsInode destDir = dirCacheNew.get(newDirname);
                             FsInode srcDir = dirCacheOld.get(oldDirname);
 
-                            progressTick();
+                            progress.tick();
                             fs.rename(inode, srcDir, name, destDir, name);
                         } catch (ChimeraFsException | ExecutionException ex) {
                             LOGGER.error("Failed to discover path: {}", ex.getMessage());
                         }
                     });
 
-            progressFinish();
+            progress.finish();
         }
 
         System.out.println();
@@ -140,22 +144,30 @@ public class Migration {
         return map;
     }
 
-    private final char[] bar = {'-', '\\', '|', '/'};
-    int i;
+    private static class Progress {
 
-    private void progressInit() {
-        i = 0;
-        System.out.print("  ");
+        private final char[] bar = {'-', '\\', '|', '/'};
+        int i;
+        private final PrintStream printStream;
+
+        Progress(PrintStream printStream) {
+            this.printStream = printStream;
+        }
+
+        void start() {
+            i = 0;
+            printStream.print("  ");
+        }
+
+        void finish() {
+            printStream.print("\b");
+            printStream.println(i + " files.");
+        }
+
+        void tick() {
+            printStream.print("\b");
+            printStream.print(bar[i++ % bar.length]);
+        }
+
     }
-
-    private void progressFinish() {
-        System.out.print("\b");
-        System.out.println(i + " files.");
-    }
-
-    private void progressTick() {
-        System.out.print("\b");
-        System.out.print(bar[i++ % bar.length]);
-    }
-
 }
