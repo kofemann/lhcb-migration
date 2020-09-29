@@ -33,15 +33,19 @@ public class Migration {
     private final JdbcFs fs;
     private final String src;
     private final String dest;
+    private final int uid;
+    private final int gid;
 
     private final LoadingCache<String, FsInode> dirCacheOld;
     private final LoadingCache<String, FsInode> dirCacheNew;
 
-    public Migration(String src, String dest, DataSource chimeraDb, DataSource spaceMgrDb) throws ChimeraFsException, SQLException {
+    public Migration(String src, String dest, int uid, int gid, DataSource chimeraDb, DataSource spaceMgrDb) throws ChimeraFsException, SQLException {
 
         jdbc = new JdbcTemplate(spaceMgrDb);
         this.src = src;
         this.dest = dest;
+        this.uid = uid;
+        this.gid = gid;
 
         PlatformTransactionManager txManager = new DataSourceTransactionManager(chimeraDb);
         fs = new JdbcFs(chimeraDb, txManager, Hazelcast.newHazelcastInstance());
@@ -66,10 +70,13 @@ public class Migration {
                                    return fs.path2inode(k);
                                } catch (FileNotFoundHimeraFsException e) {
                                    File f = new File(k);
-                                   if (f.getParent() != null) {
-                                       dirCacheNew.get(f.getParent());
+                                   String parentPath = f.getParent();
+                                   if (f.getParent() == null) {
+                                       throw new RuntimeException("Can't get parent path for " + k);
                                    }
-                                   return fs.mkdir(k);
+                                   FsInode parent = dirCacheNew.get(parentPath);
+
+                                   return fs.mkdir(parent, f.getName(), uid, gid, 0775);
                                }
                            }
                        }

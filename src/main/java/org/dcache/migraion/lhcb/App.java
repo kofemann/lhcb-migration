@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,6 +25,8 @@ public class App {
             Migration migration = new Migration(
                     config.getProperty("path.src"),
                     config.getProperty("path.dest"),
+                    Integer.parseInt(config.getProperty("path.owner")),
+                    Integer.parseInt(config.getProperty("path.group")),
                     chimeraDb, spacemgrDb);
             migration.run(Splitter.on(',').omitEmptyStrings().trimResults().splitToList(config.getProperty("tokens")));
         } catch (Throwable e) {
@@ -46,15 +49,18 @@ public class App {
 
     private static Properties loadProperties(String[] args) throws FileNotFoundException, IOException {
 
-        String properties[] = {"chimera.url",
-            "chimera.user",
-            "chimera.pass",
-            "spacemgr.url",
-            "spacemgr.user",
-            "spacemgr.pass",
-            "tokens",
-            "path.src",
-            "path.dest"
+        String properties[] = {
+                "chimera.url",
+                "chimera.user",
+                "chimera.pass",
+                "spacemgr.url",
+                "spacemgr.user",
+                "spacemgr.pass",
+                "tokens",
+                "path.src",
+                "path.dest",
+                "path.owner",
+                "path.group"
         };
 
         var config = new Properties();
